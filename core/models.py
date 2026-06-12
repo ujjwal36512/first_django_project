@@ -1,10 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from .managers import UserManager
+
 # Create your models here.
 class User(AbstractUser):
     username = models.CharField(max_length=100, blank=True, null=True, unique=False)
-    full_name = models.CharField(max_length=150)
+    full_name = models.CharField(max_length=150, blank=True)
     address = models.CharField(blank=True)
     gender = models.CharField(
         max_length=10,
@@ -19,15 +20,8 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     
     objects = UserManager()
-
-    
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['full_name']
-
-    def save(self, args, **kwargs):              # () means all aruguments
-        if not self.username:
-            self.username = self.email.split('@')[0]
-            super().save(*args, **kwargs)
+    REQUIRED_FIELDS = []
             
     def _str_(self):
         return self.full_name
