@@ -16,7 +16,7 @@ class UserRegistrationForm(UserCreationForm):
     class Meta:
         model = User
         fields = [
-            'fullname',
+            'full_name',
             'email',
             'address',
             'gender',
@@ -35,7 +35,7 @@ class UserRegistrationForm(UserCreationForm):
         contact = self.cleaned_data.get('contact_number')
         if contact:
             cleaned = contact.replace(' ', '').replace('-', '')
-            if not cleaned.is_digit():
+            if not cleaned.isdigit():
                 raise ValidationError('Contact number must contain only digits.')
             
             if len(cleaned) < 10:

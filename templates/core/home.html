@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <style>
+        body {
+            text-align: center;
+            padding-top: 100px;
+        }
+        .welcome{
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .user-info {
+           margin-bottom: 20px;
+            color: #555;
+        }
+        .btn-logout {
+           
+            padding: 10px;
+            background: #f44336;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome">Welcome to the Home Page</div>
+    <div class="user-info">
+        Logged in as: <strong>
+            {{request.user.full_name
+             }}
+        </strong>
+        {{request.user.email}}
+    </div>
+
+    <form action="{%url 'logout'%}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn-logout">Logout</button>
+    </form>
+</body>
+</html>
