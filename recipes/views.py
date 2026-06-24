@@ -22,28 +22,66 @@ def recipe_detail(request,pk):
     return render(request, 'recipes/recipe_detail.html', {'recipe': recipe})
 
 @login_required
-def recipe_create(request):
-    if request.method == 'POSt':
-        form = RecipeForm(request.POST, request.FILE)
-        
-        if form.is_valid():
-            recipe = form.save(commit=False)
-            recipe.user = request.user
-            recipe.save()
-            messages.success(request, 'Recipe uploaded successfully.')
-            return redirect('recipe_detail',pk = recipe.pk)
-    else:
-        form = RecipeForm()
-        
-    context = {
-        'form' : form,
-        'title' : 'Upload Recipe',
-        'button_text': 'Upload',
-    }
+def recipe_create(request,pk):
+     recipe = get_object_or_404(Recipe, pk=pk)
+     return render(request, 'recipes/recipe_detail.html', {'recipe': recipe})
+
+@login_required
+def recipe_update(request):
+     if request.method == 'POST':
+          form = RecipeForm(request.POST, request.FILES)
+
+          if form.is_valid():
+               recipe = form.save(commit=False)
+               recipe.user = request.user
+               recipe.save()
+               messages.success(request, 'Recipe updated successfully!')
+               return redirect('recipe_detail', pk=recipe.pk)
+     else:
+               form = RecipeForm()
+
+     context = {
+               'form': form,
+               'title': 'Update Recipe',
+               'button_text': 'Upload',
+          }
+     return render(request, 'recipes/recipe_form.html', context)
+
+
+@login_required
+def recipe_update(request, pk):
+    recipe = get_object_or_404(Recipe, pk=pk)
     
+    if recipe.user != request.user:
+        messages.error(request, 'You are not authorized to edit this recipe.')
+        return redirect('recipe_detail', pk=recipe.pk)
+    if request.method == 'POST':
+        form = RecipeForm(request.POST, request.FILES, instance=recipe)
+    
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Recipe updated successfully!')
+            return redirect('recipe_detail', pk=recipe.pk)
+    else:
+        form = RecipeForm(instance=recipe)
+        context = {
+            'form': form,
+            'title': 'Update Recipe',
+            'button_text': 'Update',
+    }
     return render(request, 'recipes/recipe_form.html', context)
 
-# @login_required
-# def recipe_update(request,pk):
-#     recipes = Recipe.objects.all()
-#     return render(request, 'recipes/recipe_list.html', {'recipes': recipes})
+@login_required
+def recipe_delete(request, pk):
+     recipe = get_object_or_404(Recipe, pk=pk)
+
+     if recipe.user != request.user:
+          messages.error(request, 'You are not authorized to delete this recipe.')
+          return redirect('recipe_detail', pk=pk)
+
+     if request.method == 'POST':
+            recipe.delete()
+            messages.success(request, 'Recipe deleted successfully!')
+            return redirect('recipe_list')
+     
+     return render(request, 'recipes/recipe_confirm_delete.html', {'recipe': recipe})
