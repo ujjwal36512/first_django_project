@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ recipe.title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        .cover { width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; }
+        .meta { color: #666; margin-bottom: 20px; }
+        .section { margin-bottom: 30px; }
+        .section h2 { border-bottom: 2px solid #28a745; padding-bottom: 5px; }
+        .actions { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; }
+        .actions a { margin-right: 15px; color: #007bff; }
+        .actions a.delete { color: #dc3545; }
+    </style>
+</head>
+<body>
+    {% if recipe.cover_image %}
+        <img src="{{ recipe.cover_image.url }}" alt="{{ recipe.title }}" class="cover">
+    {% endif %}
+    
+    <h1>{{ recipe.title }}</h1>
+    {% if recipe.subtitle %}<p style="font-style: italic; color: #555;">{{ recipe.subtitle }}</p>{% endif %}
+    
+    <p class="meta">
+        By <strong>{{ recipe.user.full_name }}</strong> | 
+        {{ recipe.created_at|date:"F j, Y" }}
+    </p>
+    
+    <div class="section">
+        <h2>Ingredients</h2>
+        <pre style="white-space: pre-wrap; font-family: inherit;">{{ recipe.ingredients }}</pre>
+    </div>
+    
+    <div class="section">
+        <h2>Instructions</h2>
+        <pre style="white-space: pre-wrap; font-family: inherit;">{{ recipe.instructions }}</pre>
+    </div>
+    
+    {% if recipe.chefs_note %}
+        <div class="section">
+            <h2>Chef's Note</h2>
+            <p>{{ recipe.chefs_note }}</p>
+        </div>
+    {% endif %}
+    
+    <div class="actions">
+        <a href="{% url 'recipe_list' %}">← All Recipes</a>
+        
+        {% if recipe.user == request.user %}
+            <a href="{% url 'recipe_update' recipe.pk %}">Edit</a>
+            <a href="{% url 'recipe_delete' recipe.pk %}" class="delete">Delete</a>
+        {% endif %}
+    </div>
+</body>
+</html>

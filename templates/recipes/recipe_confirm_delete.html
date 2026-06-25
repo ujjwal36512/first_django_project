@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Recipe</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 100px auto; text-align: center; }
+        .warning { color: #dc3545; margin: 20px 0; }
+        button { padding: 10px 20px; background: #dc3545; color: white; border: none; cursor: pointer; margin-right: 10px; }
+        a { text-decoration: none; color: #007bff; }
+    </style>
+</head>
+<body>
+    <h1>Delete Recipe</h1>
+    <p>Are you sure you want to delete <strong>"{{ recipe.title }}"</strong>?</p>
+    <p class="warning">This action cannot be undone.</p>
+    
+    <form method="post" action="">
+        {% csrf_token %}
+        <button type="submit">Yes, Delete</button>
+        <a href="{% url 'recipe_detail' recipe.pk %}">Cancel</a>
+    </form>
+</body>
+</html>

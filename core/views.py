@@ -3,6 +3,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from .forms import UserRegistrationForm
 from django.contrib import messages
+from recipes.models import Recipe
 
 # Create your views here.
 
@@ -34,12 +35,12 @@ def login_view(request):
             return redirect('home')
         else:
             messages.error(request, 'Invalid email or password')
-
     return render(request, 'core/login.html')
 
 @login_required
 def home_view(request):
-    return render(request, 'core/home.html')
+    recipes = Recipe.objects.all()[:6]
+    return render(request, 'core/home.html',{'recipes':recipes})
 
 
 def logout_view(request):
