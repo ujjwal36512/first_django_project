@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Q
 from .models import Recipe
-from .forms import RecipeForm
+from .forms import RecipeForm, RecipeSearchForm
 
 # Create your views here.
 
@@ -85,3 +86,24 @@ def recipe_delete(request, pk):
             return redirect('recipe_list')
      
      return render(request, 'recipes/recipe_confirm_delete.html', {'recipe': recipe})
+ 
+@login_required
+def recipe_search(request):
+    form = RecipeSearchForm(request.GET or None)
+    recipes = Recipe.objects.all()
+
+    if form.is_valid():
+        query = form.cleaned_data.get('query')
+        
+        if query:
+            recipes = recipes.filter(
+                Q(title__icontains = query) | Q(ingredients__icontains = query)
+            )
+    
+    context = {
+        'form':form,
+        'recipes':recipes,
+        'is_search':bool(request.GET)
+    }
+
+    return render(request, 'recipes/recipe_search.html', context)
