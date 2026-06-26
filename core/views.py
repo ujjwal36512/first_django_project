@@ -1,5 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView, CreateView
+from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from .forms import UserRegistrationForm
 from django.contrib import messages
@@ -7,8 +11,8 @@ from recipes.models import Recipe
 
 # Create your views here.
 
-def landing_page(request):
-    return render(request, 'core/landing.html')
+class LandingPageView(TemplateView):
+    template_name = 'core\landing.html'
 
 def register_view(request):
     if request.method == 'POST':
