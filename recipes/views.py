@@ -68,6 +68,19 @@ class RecipeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def test_func(self):
         recipe = self.get_object()
         return recipe.user == self.request.user
+    
+    def handle_no_permission(self):
+        messages.error(self.request, "You cannot edit another user's recipe.")
+        return redirect('recipe_detail', pk=self.get_object().pk)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Update Recipe'
+        context['button_text'] = 'Save'
+        return context
+    
+    def get_success_url(self):
+        return reverse_lazy('recipe_detail', kwargs={'pk': self.object.pk})
 
 class RecipeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Recipe
@@ -78,7 +91,51 @@ class RecipeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         recipe = self.get_object()
         return recipe.user == self.request.user
+    
+    def handle_no_permission(self):
+        messages.error(self.request, "You cannot delete another user's recipe.")
+        return redirect('recipe_detail', pk=self.get_object().pk)
 
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "Recipe deleted successfully.")
+        return super().delete(request, *args, **kwargs)
+    
+class RecipeSearchView(LoginRequiredMixin, FormView):
+    template_name = 'recipes/recipe_search.html'
+    form_class = RecipeSearchForm
+    login_url = reverse_lazy('login')
+
+    def get_form(self, form_class = None):
+        return self.form_class(self.request.GET or None)
+    
+    # def form_valid(self, form):
+    #     query = form.cleaned_data.get('query')
+    #     recipes = Recipe.objects.all()
+    #     if query:
+    #         recipes = recipes.filter(
+    #             Q(title__icontains=query) |
+    #             Q(ingredients__icontains=query)
+    #         )
+    #     context = self.get_context_data(form=form, recipes=recipes, is_search=True)
+    #     return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['recipes'] = []
+        context['is_search'] = bool(self.request.GET)
+        
+        form = self.get_form()
+        if form.is_valid():
+            query = form.cleaned_data.get('query')
+            recipes = Recipe.objects.all()
+            if query:
+                recipes = recipes.filter(
+                    Q(title__icontains=query) |
+                    Q(ingredients__icontains=query)
+                )
+            context['recipes'] = recipes
+        return context
+    
 # @login_required
 # def recipe_detail(request, pk):
 #     recipe = get_object_or_404(Recipe, pk=pk)
@@ -145,22 +202,22 @@ class RecipeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     
 #     return render(request, 'recipes/recipe_confirm_delete.html', {'recipe':recipe})
 
-@login_required
-def recipe_search(request):
-    form = RecipeSearchForm(request.GET or None)
-    recipes = Recipe.objects.all()
+# @login_required
+# def recipe_search(request):
+#     form = RecipeSearchForm(request.GET or None)
+#     recipes = Recipe.objects.all()
 
-    if form.is_valid():
-        query = form.cleaned_data.get('query')
-        if query:
-            recipes = recipes.filter(
-                Q(title__icontains=query) |
-                Q(ingredients__icontains=query)
-            )
+#     if form.is_valid():
+#         query = form.cleaned_data.get('query')
+#         if query:
+#             recipes = recipes.filter(
+#                 Q(title__icontains=query) |
+#                 Q(ingredients__icontains=query)
+#             )
 
-    context = {
-        'form': form,
-        'recipes': recipes,
-        'is_search': bool(request.GET)
-    }
-    return render(request, 'recipes/recipe_search.html', context)
+#     context = {
+#         'form': form,
+#         'recipes': recipes,
+#         'is_search': bool(request.GET)
+#     }
+#     return render(request, 'recipes/recipe_search.html', context)
