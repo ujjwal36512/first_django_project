@@ -16,7 +16,7 @@ class LandingPageView(TemplateView):
 
 class RegisterView(CreateView):
     form_class = UserRegistrationForm
-    template_name = 'coree/register.html'
+    template_name = 'core/register.html'
     success_url = reverse_lazy('login')
     
     def form_valid(self, form):
